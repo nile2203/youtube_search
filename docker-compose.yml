@@ -1,4 +1,6 @@
-version: '3'
+version: '3.7'
+volumes:
+  pgdata:
 
 services:
   python:
@@ -7,3 +9,11 @@ services:
       dockerfile: docker/python/Dockerfile
     ports:
       - 8000:8000
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_DB: fampay
+      POSTGRES_USER: fampay
+      POSTGRES_PASSWORD: fampay
+    ports:
+      - 5432:5432
