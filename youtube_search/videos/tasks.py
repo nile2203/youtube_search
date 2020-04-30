@@ -1,7 +1,10 @@
+from datetime import datetime, timedelta
+
 from googleapiclient.discovery import build
 
 from fampay.settings import YOUTUBE_DEVELOPER_KEY
 from youtube_search.celery import app
+from youtube_search.videos.videos import FampayVideoDetails
 
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
@@ -41,24 +44,29 @@ def get_youtube_video_details(query, max_results=25):
 
     result = {
         'videos': get_video_details_from_response(response),
-        'page_token': response['nextPageToken']
     }
+    FampayVideoDetails.set_page_token(page_token=response['nextPageToken'], keyword=query)
     return result
 
 
 @app.task
-def get_youtube_video_details_with_page_token(result, query, max_results=25):
-    if not (isinstance(result, dict) and result):
+def get_youtube_video_details_with_page_token(query, max_results=25):
+    page_token = FampayVideoDetails.get_page_token(keyword=query)
+    if not page_token:
         return None
 
-    page_token = result['page_token']
     youtube_service = get_youtube_service()
     response = youtube_service.search().list(q=query, part='snippet', maxResults=max_results, type='video',
                                              pageToken=page_token).execute()
 
     result = {
-        'videos': get_video_details_from_response(response),
-        'page_token': response['nextPageToken']
+        'videos': get_video_details_from_response(response)
     }
+    FampayVideoDetails.set_page_token(page_token=response['nextPageToken'], keyword=query)
     return result
 
+
+@app.task
+def get_and_create_youtube_video_details(query):
+    get_youtube_video_details.delay(query)
+    get_youtube_video_details_with_page_token.apply_async([query], eta=datetime.now() + timedelta(seconds=30))

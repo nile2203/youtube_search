@@ -15,6 +15,7 @@ class BaseTask(celery.Task):
         print('Task failed')
 
     def on_success(self, retval, task_id, args, kwargs):
+        print("Task succeeded")
         return retval
 
 
