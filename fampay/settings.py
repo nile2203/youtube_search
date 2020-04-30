@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'youtube_search',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+YOUTUBE_DEVELOPER_KEY = 'AIzaSyBxRW3xQOMHMUlsx1niTLe35sQnjvi-0w4'
+CELERY_BROKER_URL = "amqp://rabbitmq"
