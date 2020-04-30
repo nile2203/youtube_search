@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: docker/python/Dockerfile
-    command: celery -A youtube_search worker --loglevel=info
+    command: celery -A youtube_search worker --loglevel=info --concurrency=3
     depends_on:
       - rabbitmq
       - postgres
